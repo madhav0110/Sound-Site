@@ -6,13 +6,13 @@ interface PresetPanelProps {
 }
 
 const PRESET_DATA = [
-  { key: 'morning', label: 'Forest', icon: 'sun' },
-  { key: 'night', label: 'Night', icon: 'moon' },
-  { key: 'rain', label: 'Rain', icon: 'rain' },
-  { key: 'ocean', label: 'Ocean', icon: 'waves' },
-  { key: 'whale', label: 'Whale', icon: 'whale' },
-  { key: 'dolphin', label: 'Dolphin', icon: 'dolphin' },
-  { key: 'sleep', label: 'Sleep', icon: 'sleep' },
+  { key: 'morning', label: 'Forest', description: 'Warm pines', icon: 'sun', group: 'land' },
+  { key: 'night', label: 'Night', description: 'Deep hush', icon: 'moon', group: 'land' },
+  { key: 'rain', label: 'Rain', description: 'Soft mist', icon: 'rain', group: 'land' },
+  { key: 'ocean', label: 'Ocean', description: 'Open tide', icon: 'waves', group: 'marine' },
+  { key: 'whale', label: 'Whale', description: 'Low hums', icon: 'whale', group: 'marine' },
+  { key: 'dolphin', label: 'Dolphin', description: 'Bright clicks', icon: 'dolphin', group: 'marine' },
+  { key: 'sleep', label: 'Sleep', description: 'Slow drift', icon: 'sleep', group: 'marine' },
 ];
 
 const SCENE_OPTIONS = [
@@ -129,6 +129,8 @@ export default function PresetPanel({ currentPreset, onPresetChange }: PresetPan
   };
 
   const activePreset = PRESET_DATA.find((preset) => preset.key === currentPreset) ?? PRESET_DATA[0];
+  const landPresets = PRESET_DATA.filter((preset) => preset.group === 'land');
+  const marinePresets = PRESET_DATA.filter((preset) => preset.group === 'marine');
 
   const handleSceneChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const nextScene = event.target.value;
@@ -148,6 +150,7 @@ export default function PresetPanel({ currentPreset, onPresetChange }: PresetPan
         <div>
           <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[rgba(44,62,45,0.45)]">Atmospheres</p>
           <p className="text-sm font-medium text-[#2C3E2D]">{activePreset.label}</p>
+          <p className="text-[12px] text-[rgba(44,62,45,0.6)]">{activePreset.description}</p>
         </div>
         <div className="rounded-full bg-[rgba(212,165,116,0.16)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[#D4A574]">
           Live mix
@@ -188,31 +191,72 @@ export default function PresetPanel({ currentPreset, onPresetChange }: PresetPan
         </label>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        {PRESET_DATA.map((preset) => {
+      <div className="rounded-[20px] border border-[rgba(212,165,116,0.24)] bg-[linear-gradient(135deg,rgba(248,243,235,0.95),rgba(236,247,243,0.95))] p-3">
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[rgba(44,62,45,0.48)]">Marine scenes</p>
+          <p className="text-[11px] text-[rgba(44,62,45,0.6)]">Whale and dolphin ready</p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {marinePresets.map((preset) => {
+            const active = currentPreset === preset.key;
+            const Icon = iconMap[preset.icon];
+            return (
+              <button
+                key={preset.key}
+                onClick={() => onPresetChange(preset.key)}
+                className="relative flex min-h-[92px] flex-col items-start justify-between rounded-[18px] border px-3 py-3 text-left transition-all duration-400"
+                style={{
+                  borderColor: active ? '#D4A574' : 'rgba(44, 62, 45, 0.16)',
+                  background: active ? 'rgba(212, 165, 116, 0.16)' : 'rgba(255,255,255,0.7)',
+                }}
+                data-cursor="expand"
+              >
+                {active && (
+                  <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-[#D4A574]" />
+                )}
+                <div className="flex items-center gap-2">
+                  <div className="rounded-full bg-[rgba(44,62,45,0.08)] p-2">
+                    <Icon active={active} />
+                  </div>
+                  <div>
+                    <p className="text-[12px] font-semibold text-[#2C3E2D]">{preset.label}</p>
+                    <p className="text-[11px] text-[rgba(44,62,45,0.64)]">{preset.description}</p>
+                  </div>
+                </div>
+                <p className="text-[10px] font-medium uppercase tracking-[0.16em]" style={{ color: active ? '#D4A574' : 'rgba(44, 62, 45, 0.55)' }}>
+                  {active ? 'Playing now' : 'Tap to play'}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {landPresets.map((preset) => {
           const active = currentPreset === preset.key;
           const Icon = iconMap[preset.icon];
           return (
             <button
               key={preset.key}
               onClick={() => onPresetChange(preset.key)}
-              className="relative flex h-[72px] w-[72px] flex-col items-center justify-center gap-1.5 rounded-xl border transition-all duration-400"
+              className="relative flex min-h-[74px] items-center gap-2 rounded-[16px] border px-3 py-3 text-left transition-all duration-400"
               style={{
                 borderColor: active ? '#D4A574' : 'rgba(44, 62, 45, 0.15)',
-                background: active ? 'rgba(212, 165, 116, 0.15)' : 'transparent',
+                background: active ? 'rgba(212, 165, 116, 0.16)' : 'rgba(255,255,255,0.55)',
               }}
               data-cursor="expand"
             >
               {active && (
-                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#D4A574]" />
+                <span className="absolute right-2.5 top-2.5 h-1.5 w-1.5 rounded-full bg-[#D4A574]" />
               )}
-              <Icon active={active} />
-              <span
-                className="text-[9px] font-medium uppercase tracking-[0.1em] transition-colors duration-300"
-                style={{ color: active ? '#D4A574' : 'rgba(44, 62, 45, 0.6)' }}
-              >
-                {preset.label}
-              </span>
+              <div className="rounded-full bg-[rgba(44,62,45,0.08)] p-2">
+                <Icon active={active} />
+              </div>
+              <div>
+                <p className="text-[12px] font-semibold text-[#2C3E2D]">{preset.label}</p>
+                <p className="text-[11px] text-[rgba(44,62,45,0.64)]">{preset.description}</p>
+              </div>
             </button>
           );
         })}
