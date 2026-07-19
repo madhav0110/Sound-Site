@@ -1,13 +1,34 @@
+import { useEffect, useState, type ChangeEvent, type FC } from 'react';
+
 interface PresetPanelProps {
   currentPreset: string;
   onPresetChange: (key: string) => void;
 }
 
 const PRESET_DATA = [
-  { key: 'morning', label: 'Morning', icon: 'sun' },
+  { key: 'morning', label: 'Forest', icon: 'sun' },
   { key: 'night', label: 'Night', icon: 'moon' },
   { key: 'rain', label: 'Rain', icon: 'rain' },
   { key: 'ocean', label: 'Ocean', icon: 'waves' },
+  { key: 'whale', label: 'Whale', icon: 'whale' },
+  { key: 'dolphin', label: 'Dolphin', icon: 'dolphin' },
+  { key: 'sleep', label: 'Sleep', icon: 'sleep' },
+];
+
+const SCENE_OPTIONS = [
+  { value: 'morning', label: 'Forest' },
+  { value: 'rain', label: 'Rain' },
+  { value: 'ocean', label: 'Ocean' },
+  { value: 'whale', label: 'Whale' },
+  { value: 'dolphin', label: 'Dolphin' },
+  { value: 'sleep', label: 'Sleep' },
+];
+
+const COMPANION_OPTIONS = [
+  { value: 'none', label: 'No companion' },
+  { value: 'whale', label: 'Whale' },
+  { value: 'dolphin', label: 'Dolphin' },
+  { value: 'sleep', label: 'Sleep drift' },
 ];
 
 function SunIcon({ active }: { active: boolean }) {
@@ -53,43 +74,149 @@ function WavesIcon({ active }: { active: boolean }) {
   );
 }
 
+function WhaleIcon({ active }: { active: boolean }) {
+  const color = active ? '#D4A574' : '#2C3E2D';
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12c0-4 3-7 7-7h5c3 0 5 2 5 4 0 2-2 3-5 3h-4" />
+      <path d="M18 10c2.5 0 4 1.5 4 3.5S20.5 17 18 17h-2" />
+      <path d="M8 9c-1 0-2 .5-2 2 0 1.5 1 2 2 2" />
+      <path d="M10 12h4" />
+    </svg>
+  );
+}
+
+function DolphinIcon({ active }: { active: boolean }) {
+  const color = active ? '#D4A574' : '#2C3E2D';
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 12c2-2 4-3 7-3 2 0 5 1 7 3-2 2-5 3-7 3-3 0-5-1-7-3Z" />
+      <path d="M14 9c2 0 4 1 5 3-1 2-3 3-5 3" />
+      <path d="M7 12h4" />
+    </svg>
+  );
+}
+
+function SleepIcon({ active }: { active: boolean }) {
+  const color = active ? '#D4A574' : '#2C3E2D';
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8c2.5-2 5-2.5 8-1.5C13 6 12 7 12 8c0 2.2 2.2 4 5 4" />
+      <path d="M5 15c2-1.5 4-2 6-2 2.5 0 4.5 1 6 2" />
+      <path d="M7 19c2-1 4-1.5 6-1.5s4 .5 6 1.5" />
+    </svg>
+  );
+}
+
 export default function PresetPanel({ currentPreset, onPresetChange }: PresetPanelProps) {
-  const iconMap: Record<string, React.FC<{ active: boolean }>> = {
+  const [sceneKey, setSceneKey] = useState(currentPreset);
+  const [companionKey, setCompanionKey] = useState('none');
+
+  useEffect(() => {
+    const isKnownScene = PRESET_DATA.some((preset) => preset.key === currentPreset);
+    setSceneKey(isKnownScene ? currentPreset : 'morning');
+    setCompanionKey(currentPreset === 'whale' || currentPreset === 'dolphin' || currentPreset === 'sleep' ? currentPreset : 'none');
+  }, [currentPreset]);
+
+  const iconMap: Record<string, FC<{ active: boolean }>> = {
     sun: SunIcon,
     moon: MoonIcon,
     rain: RainIcon,
     waves: WavesIcon,
+    whale: WhaleIcon,
+    dolphin: DolphinIcon,
+    sleep: SleepIcon,
+  };
+
+  const activePreset = PRESET_DATA.find((preset) => preset.key === currentPreset) ?? PRESET_DATA[0];
+
+  const handleSceneChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const nextScene = event.target.value;
+    setSceneKey(nextScene);
+    onPresetChange(nextScene);
+  };
+
+  const handleCompanionChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const nextCompanion = event.target.value;
+    setCompanionKey(nextCompanion);
+    onPresetChange(nextCompanion === 'none' ? sceneKey : nextCompanion);
   };
 
   return (
-    <div className="flex gap-3 p-3 rounded-2xl bg-[rgba(245,240,232,0.6)] backdrop-blur-[12px] border border-[rgba(44,62,45,0.1)]">
-      {PRESET_DATA.map((preset) => {
-        const active = currentPreset === preset.key;
-        const Icon = iconMap[preset.icon];
-        return (
-          <button
-            key={preset.key}
-            onClick={() => onPresetChange(preset.key)}
-            className="relative w-[72px] h-[72px] rounded-xl border flex flex-col items-center justify-center gap-1.5 transition-all duration-400"
-            style={{
-              borderColor: active ? '#D4A574' : 'rgba(44, 62, 45, 0.15)',
-              background: active ? 'rgba(212, 165, 116, 0.15)' : 'transparent',
-            }}
+    <div className="flex flex-col gap-3 rounded-[24px] border border-[rgba(44,62,45,0.12)] bg-[rgba(245,240,232,0.7)] p-3 shadow-[0_20px_60px_rgba(44,62,45,0.12)] backdrop-blur-[14px]">
+      <div className="flex items-center justify-between gap-2">
+        <div>
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[rgba(44,62,45,0.45)]">Atmospheres</p>
+          <p className="text-sm font-medium text-[#2C3E2D]">{activePreset.label}</p>
+        </div>
+        <div className="rounded-full bg-[rgba(212,165,116,0.16)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[#D4A574]">
+          Live mix
+        </div>
+      </div>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[rgba(44,62,45,0.55)]">
+          Scene
+          <select
+            value={sceneKey}
+            onChange={handleSceneChange}
+            className="rounded-xl border border-[rgba(44,62,45,0.15)] bg-white/70 px-3 py-2 text-sm font-normal text-[#2C3E2D] outline-none"
             data-cursor="expand"
           >
-            {active && (
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#D4A574]" />
-            )}
-            <Icon active={active} />
-            <span
-              className="text-[9px] font-medium uppercase tracking-[0.1em] transition-colors duration-300"
-              style={{ color: active ? '#D4A574' : 'rgba(44, 62, 45, 0.6)' }}
+            {SCENE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1 text-[10px] font-medium uppercase tracking-[0.16em] text-[rgba(44,62,45,0.55)]">
+          Companion
+          <select
+            value={companionKey}
+            onChange={handleCompanionChange}
+            className="rounded-xl border border-[rgba(44,62,45,0.15)] bg-white/70 px-3 py-2 text-sm font-normal text-[#2C3E2D] outline-none"
+            data-cursor="expand"
+          >
+            {COMPANION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        {PRESET_DATA.map((preset) => {
+          const active = currentPreset === preset.key;
+          const Icon = iconMap[preset.icon];
+          return (
+            <button
+              key={preset.key}
+              onClick={() => onPresetChange(preset.key)}
+              className="relative flex h-[72px] w-[72px] flex-col items-center justify-center gap-1.5 rounded-xl border transition-all duration-400"
+              style={{
+                borderColor: active ? '#D4A574' : 'rgba(44, 62, 45, 0.15)',
+                background: active ? 'rgba(212, 165, 116, 0.15)' : 'transparent',
+              }}
+              data-cursor="expand"
             >
-              {preset.label}
-            </span>
-          </button>
-        );
-      })}
+              {active && (
+                <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[#D4A574]" />
+              )}
+              <Icon active={active} />
+              <span
+                className="text-[9px] font-medium uppercase tracking-[0.1em] transition-colors duration-300"
+                style={{ color: active ? '#D4A574' : 'rgba(44, 62, 45, 0.6)' }}
+              >
+                {preset.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -28,6 +28,18 @@ export const PRESETS: Record<string, PresetConfig> = {
     name: 'Ocean Shore',
     gains: { drone: 0.6, wind: 0.3, birds: 0.2, water: 0.7, crickets: 0, rain: 0 },
   },
+  whale: {
+    name: 'Whale Song',
+    gains: { drone: 0.75, wind: 0.2, birds: 0, water: 0.9, crickets: 0, rain: 0 },
+  },
+  dolphin: {
+    name: 'Dolphin Drift',
+    gains: { drone: 0.55, wind: 0.25, birds: 0, water: 0.8, crickets: 0, rain: 0 },
+  },
+  sleep: {
+    name: 'Sleep Drift',
+    gains: { drone: 0.35, wind: 0.1, birds: 0, water: 0.25, crickets: 0, rain: 0 },
+  },
 };
 
 let audioCtx: AudioContext | null = null;
