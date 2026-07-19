@@ -54,8 +54,8 @@ export default function AboutSection({ onScrollToTop }: AboutSectionProps) {
       <div className="max-w-[720px] mx-auto text-center">
         <div className="decor-line h-[1px] bg-[#D4A574] mx-auto mb-8" style={{ width: 0 }} />
 
-        <p className="quote-text text-xl md:text-xl font-light italic text-[#F5F0E8] leading-[1.6] font-['Inter'] opacity-0">
-          "In silence, we find the space between thoughts. In sound, we find the world between silences."
+        <p className="quote-text text-xl md:text-2xl font-light italic text-[#F5F0E8] leading-[1.6] font-['Inter'] opacity-0">
+          "Remember forests? This is a place to breathe, rest, and protect what keeps us alive."
         </p>
 
         <div className="manifesto mt-12 opacity-0">

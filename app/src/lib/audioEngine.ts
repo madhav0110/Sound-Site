@@ -360,6 +360,140 @@ function stopRain() {
   sources.rain = { active: false };
 }
 
+// ========== MARINE SOUND LAYERS ==========
+let marineVoiceInterval: ReturnType<typeof setInterval> | null = null;
+let marinePulseInterval: ReturnType<typeof setInterval> | null = null;
+
+function stopMarineLayers() {
+  if (marineVoiceInterval) {
+    clearInterval(marineVoiceInterval);
+    marineVoiceInterval = null;
+  }
+  if (marinePulseInterval) {
+    clearInterval(marinePulseInterval);
+    marinePulseInterval = null;
+  }
+}
+
+function startWhaleLayer() {
+  stopMarineLayers();
+  const ctx = getCtx();
+
+  const voice = () => {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const baseFreq = 90 + Math.random() * 40;
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(baseFreq, ctx.currentTime);
+    osc.detune.setValueAtTime((Math.random() - 0.5) * 10, ctx.currentTime);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.setValueAtTime(260, ctx.currentTime);
+
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0, ctx.currentTime);
+    env.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.2);
+    env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.4);
+
+    osc.connect(filter);
+    filter.connect(env);
+    connectToMaster(env, createPanner());
+
+    osc.start();
+    osc.stop(ctx.currentTime + 2.5);
+  };
+
+  marineVoiceInterval = setInterval(voice, 2800);
+  voice();
+
+  marinePulseInterval = setInterval(() => {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const pulse = ctx.createOscillator();
+    pulse.type = 'triangle';
+    pulse.frequency.setValueAtTime(110, ctx.currentTime);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0.008, ctx.currentTime + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.9);
+    pulse.connect(gain);
+    connectToMaster(gain, createPanner());
+    pulse.start();
+    pulse.stop(ctx.currentTime + 1);
+  }, 5000);
+}
+
+function startDolphinLayer() {
+  stopMarineLayers();
+  const ctx = getCtx();
+
+  const chirp = () => {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const osc = ctx.createOscillator();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(1800 + Math.random() * 1200, ctx.currentTime);
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(2200, ctx.currentTime);
+
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0, ctx.currentTime);
+    env.gain.linearRampToValueAtTime(0.04, ctx.currentTime + 0.03);
+    env.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+
+    osc.connect(filter);
+    filter.connect(env);
+    connectToMaster(env, createPanner());
+
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  };
+
+  marineVoiceInterval = setInterval(chirp, 700);
+  chirp();
+
+  marinePulseInterval = setInterval(() => {
+    if (!audioCtx || audioCtx.state !== 'running') return;
+    const noise = ctx.createBufferSource();
+    const buffer = ctx.createBuffer(1, ctx.sampleRate * 0.2, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.05));
+    }
+    noise.buffer = buffer;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'highpass';
+    filter.frequency.setValueAtTime(1000, ctx.currentTime);
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.006, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    noise.connect(filter);
+    filter.connect(gain);
+    connectToMaster(gain, createPanner());
+    noise.start();
+    noise.stop(ctx.currentTime + 0.2);
+  }, 1300);
+}
+
+function startSleepLayer() {
+  stopMarineLayers();
+  const ctx = getCtx();
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.01, ctx.currentTime);
+  const filter = ctx.createBiquadFilter();
+  filter.type = 'lowpass';
+  filter.frequency.setValueAtTime(220, ctx.currentTime);
+  const osc = ctx.createOscillator();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(110, ctx.currentTime);
+  osc.connect(filter);
+  filter.connect(gain);
+  connectToMaster(gain);
+  osc.start();
+  sources.sleep = { osc, gain, filter };
+}
+
 // ========== FOOTSTEPS ==========
 export function playFootstep(_panValue: number = 0) {
   if (!audioCtx || audioCtx.state !== 'running') return;
@@ -448,6 +582,16 @@ export function applyPreset(presetKey: string) {
   if (preset.gains.birds > 0) startBirds(); else stopBirds();
   if (preset.gains.crickets > 0) startCrickets(); else stopCrickets();
   if (preset.gains.rain > 0) startRain(); else stopRain();
+
+  if (presetKey === 'whale') {
+    startWhaleLayer();
+  } else if (presetKey === 'dolphin') {
+    startDolphinLayer();
+  } else if (presetKey === 'sleep') {
+    startSleepLayer();
+  } else {
+    stopMarineLayers();
+  }
 
   // Crossfade all gain nodes over 3 seconds
   const ctx = getCtx();

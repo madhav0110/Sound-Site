@@ -265,11 +265,23 @@ export default function SoundLibrarySection() {
     >
       <div className="max-w-[1200px] mx-auto">
         <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-[rgba(44,62,45,0.4)] mb-4 font-['Inter']">
-          THE SOUND LIBRARY
+          THE SOUNDS
         </p>
-        <h2 className="section-heading text-[36px] font-light leading-[1.3] text-[#2C3E2D] mb-[60px] font-['Cormorant_Garamond'] italic">
-          Every Element, a Sound
+        <h2 className="section-heading text-[36px] font-light leading-[1.3] text-[#2C3E2D] mb-4 font-['Cormorant_Garamond'] italic">
+          A living forest, a listening room.
         </h2>
+        <p className="max-w-[700px] text-base leading-[1.7] text-[rgba(44,62,45,0.7)] mb-8 font-['Inter']">
+          Each scene is built from layered synthetic textures and gentle motion so the experience feels calm, alive, and never repetitive.
+        </p>
+
+        <div className="mb-8 flex flex-wrap gap-3">
+          <span className="rounded-full border border-[rgba(44,62,45,0.12)] bg-[rgba(212,165,116,0.12)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#D4A574]">
+            Forest • Ocean • Whale
+          </span>
+          <span className="rounded-full border border-[rgba(44,62,45,0.12)] bg-[rgba(123,163,168,0.14)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.16em] text-[#7BA3A8]">
+            Dolphin • Sleep • Rain
+          </span>
+        </div>
 
         <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {SOUND_CARDS.map((card) => (

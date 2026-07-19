@@ -85,6 +85,11 @@ export default function HeroCanvasSection() {
 
   const getPanFromClientX = (clientX: number) => clientX / window.innerWidth * 2 - 1;
 
+  const handleExploreScenes = useCallback(() => {
+    const target = document.getElementById('library');
+    target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
   const handleCanvasInteraction = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     if (!sceneInitialized.current) return;
 
@@ -184,29 +189,58 @@ export default function HeroCanvasSection() {
     >
       {showOverlay && (
         <div
-          className="begin-overlay absolute inset-0 z-20 flex items-center justify-center cursor-pointer"
+          className="begin-overlay absolute inset-0 z-20 flex items-center justify-center cursor-pointer px-4 sm:px-6"
           onClick={handleBegin}
           role="button"
           tabIndex={0}
           aria-label="Start audio experience"
           onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleBegin(); }}
         >
-          <div
-            className="px-7 py-3 rounded-3xl text-sm font-normal uppercase tracking-[0.1em] text-[#2C3E2D]"
-            style={{
-              background: 'rgba(245, 240, 232, 0.7)',
-              backdropFilter: 'blur(8px)',
-              animation: 'pulse 3s ease-in-out infinite',
-            }}
-          >
-            Click anywhere to begin
+          <div className="max-w-[760px] rounded-[32px] border border-[rgba(255,255,255,0.35)] bg-[rgba(245,240,232,0.78)] px-6 py-8 text-center shadow-[0_24px_70px_rgba(44,62,45,0.16)] backdrop-blur-[16px] sm:px-10 sm:py-10">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[rgba(44,62,45,0.5)]">
+              Echoscape • immersive ambience
+            </p>
+            <h1 className="mt-4 text-[clamp(2.2rem,4.5vw,3.8rem)] font-semibold leading-[0.95] text-[#2C3E2D]">
+              Tune into living soundscapes from around the world.
+            </h1>
+            <p className="mx-auto mt-4 max-w-[620px] text-sm leading-[1.7] text-[rgba(44,62,45,0.72)] sm:text-base">
+              Escape, relax, and drift through forests, oceans, whales, dolphins, and sleep scenes designed to breathe with you.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <button
+                className="rounded-full bg-[#2C3E2D] px-5 py-2.5 text-sm font-medium uppercase tracking-[0.12em] text-[#F5F0E8] transition-opacity duration-300 hover:opacity-90"
+                onClick={(e) => { e.stopPropagation(); handleBegin(); }}
+              >
+                Start listening
+              </button>
+              <button
+                className="rounded-full border border-[#2C3E2D] px-5 py-2.5 text-sm font-medium uppercase tracking-[0.12em] text-[#2C3E2D] transition-all duration-300 hover:bg-[#2C3E2D] hover:text-[#F5F0E8]"
+                onClick={(e) => { e.stopPropagation(); handleExploreScenes(); }}
+              >
+                Explore scenes
+              </button>
+            </div>
           </div>
         </div>
       )}
 
       {!showFAB && (
         <>
-          <div className="absolute bottom-6 left-6 z-20">
+          <div className="absolute inset-x-0 top-6 z-20 flex justify-center px-4 sm:px-6">
+            <div className="max-w-[720px] rounded-[28px] border border-[rgba(255,255,255,0.28)] bg-[rgba(245,240,232,0.84)] px-4 py-3 shadow-[0_20px_60px_rgba(44,62,45,0.18)] backdrop-blur-[16px]">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-[0.24em] text-[rgba(44,62,45,0.5)]">Echoscape</p>
+                  <h3 className="text-[18px] font-semibold text-[#2C3E2D]">Forest, ocean, whale, dolphin, sleep</h3>
+                </div>
+                <div className="rounded-full bg-[rgba(212,165,116,0.16)] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-[#D4A574]">
+                  {audio.presetName}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="absolute bottom-6 left-6 z-20 max-w-[min(92vw,420px)]">
             <PresetPanel
               currentPreset={audio.currentPreset}
               onPresetChange={audio.applyPreset}
@@ -250,6 +284,9 @@ export default function HeroCanvasSection() {
 
           {fabOpen && (
             <div className="absolute bottom-20 right-6 z-20 flex flex-col gap-3">
+              <div className="rounded-[20px] border border-[rgba(255,255,255,0.24)] bg-[rgba(245,240,232,0.84)] px-3 py-2 shadow-[0_20px_60px_rgba(44,62,45,0.16)] backdrop-blur-[14px]">
+                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-[rgba(44,62,45,0.5)]">Scene picker</p>
+              </div>
               <PresetPanel
                 currentPreset={audio.currentPreset}
                 onPresetChange={(k) => { audio.applyPreset(k); setFabOpen(false); }}
